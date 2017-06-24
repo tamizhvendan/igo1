@@ -8,13 +8,13 @@ import (
 	"github.com/tamizhvendan/igo1/jwt"
 )
 
-type UserJwt struct {
+type UserJwtNaive struct {
 	Sub   string
 	Name  string
 	Admin bool
 }
 
-func (u *UserJwt) Id() (uint, error) {
+func (u *UserJwtNaive) Id() (uint, error) {
 	v, err := strconv.ParseUint(u.Sub, 10, strconv.IntSize)
 	if err != nil {
 		return 0, err
@@ -22,21 +22,9 @@ func (u *UserJwt) Id() (uint, error) {
 	return uint(v), nil
 }
 
-type User struct {
-	Id    jwt.Sub `json:"sub"`
-	Name  string
-	Admin bool
-}
+func naiveApproach(claims string) {
 
-func naiveApproach() {
-	claims := `
-	{
-		"sub": "1234567890",
-		"name": "John D",
-		"admin": true
-	}
-	`
-	var userJwt *UserJwt
+	var userJwt *UserJwtNaive
 	err := json.Unmarshal([]byte(claims), &userJwt)
 
 	if err != nil {
@@ -47,6 +35,33 @@ func naiveApproach() {
 	fmt.Println(userJwt.Id())
 }
 
+type UserJwt struct {
+	Id    jwt.Sub `json:"sub"`
+	Name  string
+	Admin bool
+}
+
+func betterApproach(claims string) {
+
+	var userJwt *UserJwt
+	err := json.Unmarshal([]byte(claims), &userJwt)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(userJwt.Id)
+}
+
 func main() {
-	naiveApproach()
+	claims := `
+	{
+		"sub": "name/john",
+		"name": "John D",
+		"admin": true
+	}
+	`
+	//naiveApproach(claims)
+	betterApproach(claims)
 }
